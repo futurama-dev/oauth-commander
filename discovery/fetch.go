@@ -17,6 +17,13 @@ func FetchDiscovery(discoveryUrl string) (string, error) {
 
 	defer resp.Body.Close()
 
+	contentLength := resp.ContentLength
+
+	// TODO in config allow to change size of unreasonable length
+	if contentLength > 15000 {
+		return "", errors.New("content too long")
+	}
+
 	contentType := resp.Header.Get("content-type")
 	slices := strings.Split(contentType, ";")
 
