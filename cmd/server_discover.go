@@ -27,6 +27,7 @@ import (
 	"github.com/futurama-dev/oauth-commander/oidc"
 	"github.com/spf13/cobra"
 	"log"
+	"os"
 )
 
 // discoverCmd represents the discover command
@@ -53,6 +54,15 @@ to quickly create a Cobra application.`,
 		}
 
 		oidcConfig, err := discovery.FetchDiscovery(discoveryUrl)
+
+		if err == discovery.NotFoundErr {
+			fmt.Println("OpenID Connect discovery not found!")
+			os.Exit(0)
+		}
+
+		if err != nil {
+			log.Fatalln(err)
+		}
 
 		fmt.Println(oidcConfig)
 	},
