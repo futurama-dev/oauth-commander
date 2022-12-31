@@ -28,7 +28,6 @@ import (
 	"github.com/futurama-dev/oauth-commander/oidc"
 	"github.com/spf13/cobra"
 	"log"
-	"os"
 )
 
 // discoverCmd represents the discover command
@@ -52,16 +51,30 @@ to quickly create a Cobra application.`,
 		switch layerType {
 		case "all":
 			fmt.Println("trying all types")
+			fmt.Println("---------------")
 			fmt.Println("OIDC")
-			fmt.Println(oidcDiscovery(issuer))
+			oidcConfig := oidcDiscovery(issuer)
+			if oidcConfig != "" {
+				fmt.Println(oidcConfig)
+			}
+			fmt.Println("---------------")
 			fmt.Println("OAuth2")
-			fmt.Println(oauth2Discovery(issuer))
+			oauth2Config := oauth2Discovery(issuer)
+			if oauth2Config != "" {
+				fmt.Println(oauth2Config)
+			}
 		case "oidc":
 			fmt.Println("trying oidc")
-			fmt.Println(oidcDiscovery(issuer))
+			oidcConfig := oidcDiscovery(issuer)
+			if oidcConfig != "" {
+				fmt.Println(oidcConfig)
+			}
 		case "oauth2":
 			fmt.Println("trying oauth 2")
-			fmt.Println(oauth2Discovery(issuer))
+			oauth2Config := oauth2Discovery(issuer)
+			if oauth2Config != "" {
+				fmt.Println(oauth2Config)
+			}
 		default:
 			fmt.Println("invalid type inputted: ", layerType)
 		}
@@ -86,11 +99,9 @@ func oidcDiscovery(issuer string) string {
 
 	if err == discovery.NotFoundErr {
 		fmt.Println("OpenID Connect discovery not found!")
-		os.Exit(0)
-	}
-
-	if err != nil {
-		log.Fatalln(err)
+	} else if err != nil {
+		fmt.Println(err)
+		return ""
 	}
 
 	return oidcConfig
@@ -107,11 +118,9 @@ func oauth2Discovery(issuer string) string {
 
 	if err == discovery.NotFoundErr {
 		fmt.Println("OAuth 2 Connect discovery not found!")
-		os.Exit(0)
-	}
-
-	if err != nil {
-		log.Fatalln(err)
+	} else if err != nil {
+		fmt.Println(err)
+		return ""
 	}
 
 	return oauth2Config
