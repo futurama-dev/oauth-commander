@@ -23,8 +23,9 @@ package cmd
 
 import (
 	"fmt"
-
+	"github.com/futurama-dev/oauth-commander/oidc"
 	"github.com/spf13/cobra"
+	"log"
 )
 
 // discoverCmd represents the discover command
@@ -38,7 +39,23 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("discover called")
+		issuer, err := cmd.Flags().GetString("issuer")
+
+		if err != nil {
+
+		}
+
+		issuerUrl, err := oidc.ValidateIssuer(issuer)
+
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		discoveryUrl := oidc.BuildDiscoveryUrl(*issuerUrl)
+
+		oidcConfig, err := oidc.FetchDiscovery(discoveryUrl.String())
+
+		fmt.Println(oidcConfig)
 	},
 }
 
@@ -46,13 +63,4 @@ func init() {
 	serverCmd.AddCommand(discoverCmd)
 
 	discoverCmd.Flags().StringP("issuer", "i", "", "Authorization server issuer to run discovery against.")
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// discoverCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// discoverCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
