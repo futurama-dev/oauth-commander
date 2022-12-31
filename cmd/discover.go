@@ -23,6 +23,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/futurama-dev/oauth-commander/discovery"
 	"github.com/futurama-dev/oauth-commander/oidc"
 	"github.com/spf13/cobra"
 	"log"
@@ -45,15 +46,13 @@ to quickly create a Cobra application.`,
 
 		}
 
-		issuerUrl, err := oidc.ValidateIssuer(issuer)
+		discoveryUrl, err := oidc.BuildDiscoveryUrl(issuer)
 
 		if err != nil {
 			log.Fatalln(err)
 		}
 
-		discoveryUrl := oidc.BuildDiscoveryUrl(*issuerUrl)
-
-		oidcConfig, err := oidc.FetchDiscovery(discoveryUrl.String())
+		oidcConfig, err := discovery.FetchDiscovery(discoveryUrl)
 
 		fmt.Println(oidcConfig)
 	},
