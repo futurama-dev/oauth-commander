@@ -43,7 +43,7 @@ to quickly create a Cobra application.`,
 		issuer, err := cmd.Flags().GetString("issuer")
 
 		if err != nil {
-
+			log.Fatalln(err)
 		}
 
 		discoveryUrl, err := oidc.BuildDiscoveryUrl(issuer)
