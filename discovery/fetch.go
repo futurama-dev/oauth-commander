@@ -17,10 +17,10 @@ func FetchDiscovery(discoveryUrl string) (string, error) {
 
 	defer resp.Body.Close()
 
-	contentType := resp.Header["content-type"][0]
+	contentType := resp.Header.Get("content-type")
 	slices := strings.Split(contentType, ";")
 
-	if slices[0] != "applications/json" {
+	if slices[0] != "application/json" {
 		return "", errors.New("Invalid header type: " + contentType)
 	}
 
