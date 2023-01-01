@@ -12,3 +12,14 @@ func ConfigDir() string {
 
 	return localConfig
 }
+
+func ServerDir() string {
+	severConfig := configdir.LocalConfig("oauth-commander", "server")
+
+	err := configdir.MakePath(severConfig)
+	if err != nil {
+		panic(err)
+	}
+
+	return severConfig
+}
