@@ -23,7 +23,7 @@ package cmd
 
 import (
 	"fmt"
-
+	"github.com/futurama-dev/oauth-commander/server"
 	"github.com/spf13/cobra"
 )
 
@@ -38,7 +38,13 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("list called")
+		servers := server.Load()
+
+		fmt.Println("Number of servers:", len(servers))
+
+		for idx, server := range servers {
+			fmt.Println(idx+1, server.Slug, server.Type, server.Metadata["issuer"])
+		}
 	},
 }
 

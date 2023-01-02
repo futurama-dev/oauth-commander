@@ -14,7 +14,7 @@ func ConfigDir() string {
 }
 
 func ServerDir() string {
-	severConfig := configdir.LocalConfig("oauth-commander", "server")
+	severConfig := configdir.LocalConfig("oauth-commander", "servers")
 
 	err := configdir.MakePath(severConfig)
 	if err != nil {
