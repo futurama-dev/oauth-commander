@@ -28,7 +28,7 @@ import (
 )
 
 // infoCmd represents the info command
-var infoCmd = &cobra.Command{
+var serverInfoCmd = &cobra.Command{
 	Use:   "info",
 	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
@@ -43,7 +43,7 @@ to quickly create a Cobra application.`,
 }
 
 func init() {
-	serverCmd.AddCommand(infoCmd)
+	serverCmd.AddCommand(serverInfoCmd)
 
 	// Here you will define your flags and configuration settings.
 

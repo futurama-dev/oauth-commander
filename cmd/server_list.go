@@ -27,8 +27,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// listCmd represents the list command
-var listCmd = &cobra.Command{
+// serverListCmd represents the list command
+var serverListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
@@ -43,15 +43,15 @@ to quickly create a Cobra application.`,
 }
 
 func init() {
-	serverCmd.AddCommand(listCmd)
+	serverCmd.AddCommand(serverListCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// listCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// serverListCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// listCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// serverListCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

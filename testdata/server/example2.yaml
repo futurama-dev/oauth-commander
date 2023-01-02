@@ -1,0 +1,5 @@
+type: oidc
+slug: example2_com
+metadata:
+  issuer: https://example2.com/
+  authorization_endpoint: https://example2.com/auth

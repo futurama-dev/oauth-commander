@@ -30,8 +30,8 @@ import (
 	"log"
 )
 
-// discoverCmd represents the discover command
-var discoverCmd = &cobra.Command{
+// serverDiscoverCmd represents the discover command
+var serverDiscoverCmd = &cobra.Command{
 	Use:   "discover",
 	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
@@ -83,11 +83,11 @@ to quickly create a Cobra application.`,
 }
 
 func init() {
-	serverCmd.AddCommand(discoverCmd)
+	serverCmd.AddCommand(serverDiscoverCmd)
 
-	discoverCmd.Flags().StringP("issuer", "i", "", "Authorization server issuer to run discovery against.")
-	discoverCmd.Flags().StringP("type", "t", "all", "Which top layer to use on top of OAuth 2")
-	discoverCmd.Flags().BoolP("save", "s", false, "wether or not you want to save the returned JSON data")
+	serverDiscoverCmd.Flags().StringP("issuer", "i", "", "Authorization server issuer to run discovery against.")
+	serverDiscoverCmd.Flags().StringP("type", "t", "all", "Which top layer to use on top of OAuth 2")
+	serverDiscoverCmd.Flags().BoolP("save", "s", false, "wether or not you want to save the returned JSON data")
 }
 
 func oidcDiscovery(issuer string, save bool) string {
