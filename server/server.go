@@ -80,7 +80,7 @@ func (servers Servers) FindByIssuer(slug string) (Server, bool) {
 	return Server{}, false
 }
 
-func IssuerToName(issuer string) (string, error) {
+func IssuerToSlug(issuer string) (string, error) {
 	_, err := discovery.ValidateIssuer(issuer)
 
 	if err != nil {

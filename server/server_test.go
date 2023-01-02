@@ -22,7 +22,7 @@ func TestIssuerToName(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := IssuerToName(tt.issuer)
+			got, err := IssuerToSlug(tt.issuer)
 
 			if tt.wantError {
 				assert.Error(t, err)
@@ -30,7 +30,7 @@ func TestIssuerToName(t *testing.T) {
 				assert.NoError(t, err)
 
 				if got != tt.want {
-					t.Errorf("IssuerToName() = %v, want %v", got, tt.want)
+					t.Errorf("IssuerToSlug() = %v, want %v", got, tt.want)
 				}
 			}
 		})
