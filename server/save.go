@@ -8,12 +8,12 @@ import (
 	"path/filepath"
 )
 
-func Save(server Server) {
-	write(server, false, config.ServerDir())
+func Save(server Server) error {
+	return write(server, false, config.ServerDir())
 }
 
-func Update(server Server) {
-	write(server, true, config.ServerDir())
+func Update(server Server) error {
+	return write(server, true, config.ServerDir())
 }
 
 func write(server Server, overwrite bool, serverDir string) error {

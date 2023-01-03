@@ -136,9 +136,13 @@ func oidcDiscovery(issuer string, save bool, update bool) string {
 		}
 
 		if save {
-			server.Save(svr)
+			err = server.Save(svr)
+			fmt.Println(err)
 		} else {
-			server.Update(svr)
+			err = server.Update(svr)
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 	}
 
