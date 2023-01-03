@@ -26,8 +26,10 @@ import (
 	"github.com/futurama-dev/oauth-commander/discovery"
 	"github.com/futurama-dev/oauth-commander/oauth2"
 	"github.com/futurama-dev/oauth-commander/oidc"
+	"github.com/futurama-dev/oauth-commander/server"
 	"github.com/spf13/cobra"
 	"log"
+	"time"
 )
 
 // serverDiscoverCmd represents the discover command
@@ -42,9 +44,21 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		issuer, err := cmd.Flags().GetString("issuer")
-		layerType, err := cmd.Flags().GetString("type")
-		save, err := cmd.Flags().GetBool("save")
+		if err != nil {
+			log.Fatalln(err)
+		}
 
+		layerType, err := cmd.Flags().GetString("type")
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		save, err := cmd.Flags().GetBool("save")
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		update, err := cmd.Flags().GetBool("update")
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -54,25 +68,25 @@ to quickly create a Cobra application.`,
 			fmt.Println("trying all types")
 			fmt.Println("---------------")
 			fmt.Println("OIDC")
-			oidcConfig := oidcDiscovery(issuer, save)
+			oidcConfig := oidcDiscovery(issuer, save, update)
 			if oidcConfig != "" {
 				fmt.Println(oidcConfig)
 			}
 			fmt.Println("---------------")
 			fmt.Println("OAuth2")
-			oauth2Config := oauth2Discovery(issuer, save)
+			oauth2Config := oauth2Discovery(issuer, save, update)
 			if oauth2Config != "" {
 				fmt.Println(oauth2Config)
 			}
 		case "oidc":
 			fmt.Println("trying oidc")
-			oidcConfig := oidcDiscovery(issuer, save)
+			oidcConfig := oidcDiscovery(issuer, save, update)
 			if oidcConfig != "" {
 				fmt.Println(oidcConfig)
 			}
 		case "oauth2":
 			fmt.Println("trying oauth 2")
-			oauth2Config := oauth2Discovery(issuer, save)
+			oauth2Config := oauth2Discovery(issuer, save, update)
 			if oauth2Config != "" {
 				fmt.Println(oauth2Config)
 			}
@@ -91,7 +105,7 @@ func init() {
 	serverDiscoverCmd.Flags().BoolP("update", "u", false, "used to update an existing saved server")
 }
 
-func oidcDiscovery(issuer string, save bool) string {
+func oidcDiscovery(issuer string, save bool, update bool) string {
 	discoveryUrl, err := oidc.BuildDiscoveryUrl(issuer)
 
 	if err != nil {
@@ -100,13 +114,31 @@ func oidcDiscovery(issuer string, save bool) string {
 
 	oidcConfig, err := discovery.FetchDiscovery(discoveryUrl)
 
-	if save {
+	if save || update {
 		savedConfig, err := discovery.ParseMetaData(oidcConfig)
 
 		if err == discovery.InvalidJSONErr {
 			fmt.Println(discovery.InvalidJSONErr)
 		} else {
 			fmt.Println("Saved config: ", savedConfig)
+		}
+
+		slug, err := server.IssuerToSlug(issuer)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		svr := server.Server{
+			Slug:      slug,
+			Type:      "oidc",
+			CreatedAt: time.Now().Truncate(time.Second),
+			Metadata:  savedConfig,
+		}
+
+		if save {
+			server.Save(svr)
+		} else {
+			server.Update(svr)
 		}
 	}
 
@@ -120,7 +152,7 @@ func oidcDiscovery(issuer string, save bool) string {
 	return oidcConfig
 }
 
-func oauth2Discovery(issuer string, save bool) string {
+func oauth2Discovery(issuer string, save bool, update bool) string {
 	discoveryUrl, err := oauth2.BuildDiscoveryUrl(issuer)
 
 	if err != nil {
@@ -129,13 +161,31 @@ func oauth2Discovery(issuer string, save bool) string {
 
 	oauth2Config, err := discovery.FetchDiscovery(discoveryUrl)
 
-	if save {
+	if save || update {
 		savedConfig, err := discovery.ParseMetaData(oauth2Config)
 
 		if err == discovery.InvalidJSONErr {
 			fmt.Println(discovery.InvalidJSONErr)
 		} else {
 			fmt.Println("Saved config: ", savedConfig)
+		}
+
+		slug, err := server.IssuerToSlug(issuer)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		svr := server.Server{
+			Slug:      slug,
+			Type:      "oauth2",
+			CreatedAt: time.Now().Truncate(time.Second),
+			Metadata:  savedConfig,
+		}
+
+		if save {
+			server.Save(svr)
+		} else {
+			server.Update(svr)
 		}
 	}
 
