@@ -23,35 +23,44 @@ package cmd
 
 import (
 	"fmt"
-
+	"github.com/futurama-dev/oauth-commander/server"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v3"
+	"log"
+	"strings"
 )
 
 // infoCmd represents the info command
 var serverInfoCmd = &cobra.Command{
-	Use:   "info",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Use:   "info <slug|issuer>",
+	Short: "Show detailed information for a server",
+	Long: `Show all the configuration information for a server. The server can be specified either as the server
+slug or the issuer.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("info called")
+		servers := server.Load()
+		slug_or_issuer := args[0]
+
+		var server server.Server
+		var ok bool
+
+		if strings.HasPrefix(slug_or_issuer, "https://") {
+			server, ok = servers.FindByIssuer(slug_or_issuer)
+		} else {
+			server, ok = servers.FindBySlug(slug_or_issuer)
+		}
+
+		if ok {
+			info, err := yaml.Marshal(server)
+			if err != nil {
+				log.Fatalln(err)
+			}
+			fmt.Println(string(info))
+		} else {
+			fmt.Println("Server not found:", slug_or_issuer)
+		}
 	},
 }
 
 func init() {
 	serverCmd.AddCommand(serverInfoCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// infoCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// infoCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

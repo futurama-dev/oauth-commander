@@ -29,35 +29,21 @@ import (
 
 // serverListCmd represents the list command
 var serverListCmd = &cobra.Command{
-	Use:   "list",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Use:     "list",
+	Aliases: []string{"ls"},
+	Short:   "List all the servers",
+	Long:    `List all the configured servers. For each server show the slug, type and issuer.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		servers := server.Load()
 
 		fmt.Println("Number of servers:", len(servers))
 
-		for idx, server := range servers {
-			fmt.Println(idx+1, server.Slug, server.Type, server.Metadata["issuer"])
+		for _, server := range servers {
+			fmt.Println(server.Slug, server.Type, server.Metadata["issuer"])
 		}
 	},
 }
 
 func init() {
 	serverCmd.AddCommand(serverListCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// serverListCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// serverListCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
