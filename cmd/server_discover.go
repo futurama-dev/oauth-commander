@@ -119,6 +119,7 @@ func oidcDiscovery(issuer string, save bool, update bool) string {
 
 		if err == discovery.InvalidJSONErr {
 			fmt.Println(discovery.InvalidJSONErr)
+			return ""
 		} else {
 			fmt.Println("Saved config: ", savedConfig)
 		}
@@ -170,6 +171,7 @@ func oauth2Discovery(issuer string, save bool, update bool) string {
 
 		if err == discovery.InvalidJSONErr {
 			fmt.Println(discovery.InvalidJSONErr)
+			return ""
 		} else {
 			fmt.Println("Saved config: ", savedConfig)
 		}
