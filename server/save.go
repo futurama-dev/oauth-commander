@@ -8,12 +8,12 @@ import (
 	"path/filepath"
 )
 
-func Save(toSave Server) {
-	write(toSave, false, config.ServerDir())
+func Save(server Server) {
+	write(server, false, config.ServerDir())
 }
 
-func Update(toUpdate Server) {
-	write(toUpdate, true, config.ServerDir())
+func Update(server Server) {
+	write(server, true, config.ServerDir())
 }
 
 func write(server Server, overwrite bool, serverDir string) error {
@@ -29,22 +29,10 @@ func write(server Server, overwrite bool, serverDir string) error {
 		}
 	}
 
-	toWrite, err := yaml.Marshal(&server.Metadata)
+	toWrite, err := yaml.Marshal(&server)
 	if err != nil {
 		return err
 	}
 
-	file, err := os.Open(pathToFile)
-	if err != nil {
-		return err
-	}
-
-	defer file.Close()
-
-	_, err = file.WriteString(string(toWrite))
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return os.WriteFile(pathToFile, toWrite, 0644)
 }

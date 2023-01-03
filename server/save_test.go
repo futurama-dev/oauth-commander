@@ -1,27 +1,66 @@
 package server
 
 import (
-	"fmt"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"log"
+	"os"
 	"testing"
+	"time"
 )
 
 func Test_write(t *testing.T) {
-	type args struct {
-		server    Server
-		overwrite bool
-		serverDir string
+	tempDir, err := os.MkdirTemp("", "servers*")
+	if err != nil {
+		log.Fatalln(err)
 	}
-	tests := []struct {
-		name    string
-		args    args
-		wantErr assert.ErrorAssertionFunc
-	}{
-		// TODO: Add test cases.
+
+	defer os.RemoveAll(tempDir)
+
+	testServer := Server{
+		Slug:      "example_com",
+		Type:      "oidc",
+		CreatedAt: time.Now().Truncate(time.Second),
+		Metadata:  map[string]any{},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tt.wantErr(t, write(tt.args.server, tt.args.overwrite, tt.args.serverDir), fmt.Sprintf("write(%v, %v, %v)", tt.args.server, tt.args.overwrite, tt.args.serverDir))
-		})
+
+	// save tesServer
+	err = write(testServer, false, tempDir)
+	require.NoError(t, err)
+
+	// load testServer
+	results := load(tempDir)
+	assert.Len(t, results, 1)
+
+	assert.Equal(t, testServer, results[0])
+
+	// save testServer onto existing testServer
+	err = write(testServer, false, tempDir)
+	require.Error(t, err)
+
+	// update same testServer onto existing testServer
+	err = write(testServer, true, tempDir)
+	require.NoError(t, err)
+
+	// update testServer onto existing testServer
+	testServer.CreatedAt = testServer.CreatedAt.Add(time.Hour)
+	err = write(testServer, true, tempDir)
+
+	results = load(tempDir)
+	assert.Len(t, results, 1)
+
+	assert.Equal(t, testServer, results[0])
+
+	testServer2 := Server{
+		Slug:      "example_org",
+		Type:      "oidc",
+		CreatedAt: time.Now().Truncate(time.Second),
+		Metadata:  map[string]any{},
 	}
+
+	err = write(testServer2, false, tempDir)
+	require.NoError(t, err)
+
+	results = load(tempDir)
+	assert.Len(t, results, 2)
 }

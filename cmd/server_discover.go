@@ -87,7 +87,8 @@ func init() {
 
 	serverDiscoverCmd.Flags().StringP("issuer", "i", "", "Authorization server issuer to run discovery against.")
 	serverDiscoverCmd.Flags().StringP("type", "t", "all", "Which top layer to use on top of OAuth 2")
-	serverDiscoverCmd.Flags().BoolP("save", "s", false, "wether or not you want to save the returned JSON data")
+	serverDiscoverCmd.Flags().BoolP("save", "s", false, "whether or not you want to save the returned JSON data")
+	serverDiscoverCmd.Flags().BoolP("update", "u", false, "used to update an existing saved server")
 }
 
 func oidcDiscovery(issuer string, save bool) string {
