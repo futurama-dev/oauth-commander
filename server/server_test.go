@@ -15,8 +15,10 @@ func TestIssuerToName(t *testing.T) {
 		{"empty", "", "", true},
 		{"invalid", "abc_123", "abc_123", true},
 		{"host", "https://example.com", "example_com", false},
+		{"host and empty path", "https://example.com/", "example_com", false},
+		{"host and empty paths", "https://example.com///", "example_com", false},
 		{"host and port", "https://example.com:8080", "example_com_8080", false},
-		{"host, port and empty path", "https://example.com:8080/", "example_com_8080_", false},
+		{"host, port and empty path", "https://example.com:8080/", "example_com_8080", false},
 		{"host, port and path", "https://example.com:8080/some/path", "example_com_8080_some_path", false},
 		{"no schema", "example.com:8080/some/path", "example_com_8080_some_path", true},
 	}

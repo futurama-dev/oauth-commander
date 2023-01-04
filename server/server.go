@@ -91,5 +91,5 @@ func IssuerToSlug(issuer string) (string, error) {
 
 	var re = regexp.MustCompile(`[^a-z0-9_]+`)
 
-	return re.ReplaceAllString(issuer, "_"), nil
+	return strings.TrimRight(re.ReplaceAllString(issuer, "_"), "_"), nil
 }
