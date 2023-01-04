@@ -2,6 +2,7 @@ package client
 
 import (
 	"github.com/futurama-dev/oauth-commander/config"
+	"github.com/zalando/go-keyring"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"log"
@@ -68,4 +69,32 @@ func load(serverSlug string, serverDir string) Clients {
 	}
 
 	return clients
+}
+
+func (clients Clients) FindBySlug(slug string) (Client, bool) {
+	for _, client := range clients {
+		if client.Slug == slug {
+			return client, true
+		}
+	}
+
+	return Client{}, false
+}
+
+func (clients Clients) FindById(clientId string) (Client, bool) {
+	for _, client := range clients {
+		if client.Id == clientId {
+			return client, true
+		}
+	}
+
+	return Client{}, false
+}
+
+func (client Client) Secret() (string, error) {
+	return keyring.Get("oauth-commander", client.SecretHandle)
+}
+
+func (client Client) SetSecret(secret string) error {
+	return keyring.Set("oauth-commander", client.SecretHandle, secret)
 }
