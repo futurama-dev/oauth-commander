@@ -1,0 +1,5 @@
+type: oidc
+slug: example_net
+metadata:
+  issuer: https://example.net/
+  authorization_endpoint: https://example.net/auth

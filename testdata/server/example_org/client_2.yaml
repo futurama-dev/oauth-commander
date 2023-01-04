@@ -1,0 +1,4 @@
+slug: client_2
+type: oidc
+id: client_id_2
+secret_handle: example_org_client_2

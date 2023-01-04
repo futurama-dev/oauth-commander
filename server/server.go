@@ -15,7 +15,7 @@ import (
 type Server struct {
 	Slug      string
 	Type      string
-	CreatedAt time.Time
+	CreatedAt time.Time `yaml:"created_at"`
 	Metadata  map[string]any
 }
 
