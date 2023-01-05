@@ -65,28 +65,48 @@ to quickly create a Cobra application.`,
 
 		switch layerType {
 		case "all":
+			var continueSave bool
 			fmt.Println("trying all types")
 			fmt.Println("---------------")
 			fmt.Println("OIDC")
-			oidcConfig := oidcDiscovery(issuer, save, update)
+			oidcConfig, success := oidcDiscovery(issuer, save, update)
+			if success {
+				continueSave = false
+			} else {
+				continueSave = true
+			}
 			if oidcConfig != "" {
 				fmt.Println(oidcConfig)
 			}
 			fmt.Println("---------------")
 			fmt.Println("OAuth2")
-			oauth2Config := oauth2Discovery(issuer, save, update)
+			if !continueSave && (save || update) {
+				save, update = false, false
+			}
+			oauth2Config, success := oauth2Discovery(issuer, save, update)
+			if success {
+				continueSave = false
+			} else {
+				continueSave = true
+			}
 			if oauth2Config != "" {
 				fmt.Println(oauth2Config)
 			}
 		case "oidc":
 			fmt.Println("trying oidc")
-			oidcConfig := oidcDiscovery(issuer, save, update)
+			oidcConfig, success := oidcDiscovery(issuer, save, update)
+			if success {
+
+			}
 			if oidcConfig != "" {
 				fmt.Println(oidcConfig)
 			}
 		case "oauth2":
 			fmt.Println("trying oauth 2")
-			oauth2Config := oauth2Discovery(issuer, save, update)
+			oauth2Config, success := oauth2Discovery(issuer, save, update)
+			if success {
+
+			}
 			if oauth2Config != "" {
 				fmt.Println(oauth2Config)
 			}
@@ -105,7 +125,7 @@ func init() {
 	serverDiscoverCmd.Flags().BoolP("update", "u", false, "used to update an existing saved server")
 }
 
-func oidcDiscovery(issuer string, save bool, update bool) string {
+func oidcDiscovery(issuer string, save bool, update bool) (string, bool) {
 	discoveryUrl, err := oidc.BuildDiscoveryUrl(issuer)
 
 	if err != nil {
@@ -119,7 +139,7 @@ func oidcDiscovery(issuer string, save bool, update bool) string {
 
 		if err == discovery.InvalidJSONErr {
 			fmt.Println(discovery.InvalidJSONErr)
-			return ""
+			return "", false
 		} else {
 			fmt.Println("Saved config: ", savedConfig)
 		}
@@ -151,13 +171,13 @@ func oidcDiscovery(issuer string, save bool, update bool) string {
 		fmt.Println("OpenID Connect discovery not found!")
 	} else if err != nil {
 		fmt.Println(err)
-		return ""
+		return "", false
 	}
 
-	return oidcConfig
+	return oidcConfig, true
 }
 
-func oauth2Discovery(issuer string, save bool, update bool) string {
+func oauth2Discovery(issuer string, save bool, update bool) (string, bool) {
 	discoveryUrl, err := oauth2.BuildDiscoveryUrl(issuer)
 
 	if err != nil {
@@ -171,7 +191,7 @@ func oauth2Discovery(issuer string, save bool, update bool) string {
 
 		if err == discovery.InvalidJSONErr {
 			fmt.Println(discovery.InvalidJSONErr)
-			return ""
+			return "", false
 		} else {
 			fmt.Println("Saved config: ", savedConfig)
 		}
@@ -199,8 +219,8 @@ func oauth2Discovery(issuer string, save bool, update bool) string {
 		fmt.Println("OAuth 2 Connect discovery not found!")
 	} else if err != nil {
 		fmt.Println(err)
-		return ""
+		return "", false
 	}
 
-	return oauth2Config
+	return oauth2Config, true
 }
