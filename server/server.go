@@ -97,7 +97,24 @@ func IssuerToSlug(issuer string) (string, error) {
 	return strings.TrimRight(re.ReplaceAllString(issuer, "_"), "_"), nil
 }
 
-func Remove(slug string) error {
+func RemoveBySlug(slug string) error {
+	err := remove(slug, config.ServerDir())
+	return err
+}
+
+func remove(slug string, serverDir string) error {
+	pathToFile := filepath.Join(serverDir, slug+".yaml")
+	_, err := os.Stat(pathToFile)
+	if err == os.ErrNotExist {
+		return errors.New("server file not found to remove")
+	} else if err == nil {
+		err = os.Remove(pathToFile)
+		if err != nil {
+			return err
+		}
+	} else {
+		return err
+	}
 
 	return nil
 }
@@ -123,7 +140,7 @@ func write(server Server, overwrite bool, serverDir string) error {
 	pathToFile := filepath.Join(serverDir, server.Slug+".yaml")
 	_, err := os.Stat(pathToFile)
 	if overwrite {
-		if err != nil {
+		if err != os.ErrNotExist {
 			return errors.New("file not found to update")
 		}
 	} else {
