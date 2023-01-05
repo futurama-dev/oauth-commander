@@ -2,6 +2,7 @@ package client
 
 import (
 	"github.com/futurama-dev/oauth-commander/config"
+	"github.com/spf13/viper"
 	"github.com/zalando/go-keyring"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
@@ -22,7 +23,7 @@ type Client struct {
 type Clients []Client
 
 func Load() Clients {
-	serverSlug := config.GetCurrentServer()
+	serverSlug := viper.GetString(config.SelectedServerSlug)
 
 	if len(serverSlug) == 0 {
 		return Clients{}

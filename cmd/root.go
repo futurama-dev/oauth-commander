@@ -24,6 +24,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/futurama-dev/oauth-commander/config"
+	"log"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -55,7 +56,7 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.oauth-commander.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $PLATFORM_CONFIG_FOLDER/oauth-commander/config.yaml)")
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -68,7 +69,7 @@ func initConfig() {
 
 		viper.AddConfigPath(configDir)
 		viper.SetConfigType("yaml")
-		viper.SetConfigName("config")
+		viper.SetConfigName("config.yaml")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
@@ -76,5 +77,10 @@ func initConfig() {
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
+	} else {
+		err = viper.WriteConfig()
+		if err != nil {
+			log.Fatalln(err)
+		}
 	}
 }

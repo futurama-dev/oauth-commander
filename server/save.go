@@ -3,13 +3,23 @@ package server
 import (
 	"errors"
 	"github.com/futurama-dev/oauth-commander/config"
+	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 	"os"
 	"path/filepath"
 )
 
 func Save(server Server) error {
-	return write(server, false, config.ServerDir())
+	err := write(server, false, config.ServerDir())
+
+	if err == nil {
+		if len(viper.GetString(config.SelectedServerSlug)) == 0 {
+			viper.Set(config.SelectedServerSlug, server.Slug)
+			viper.WriteConfig()
+		}
+	}
+
+	return err
 }
 
 func Update(server Server) error {

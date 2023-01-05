@@ -23,8 +23,10 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/futurama-dev/oauth-commander/config"
 	"github.com/futurama-dev/oauth-commander/server"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // serverListCmd represents the list command
@@ -37,6 +39,7 @@ var serverListCmd = &cobra.Command{
 		servers := server.Load()
 
 		fmt.Println("Number of servers:", len(servers))
+		fmt.Println("Selected server:", viper.GetString(config.SelectedServerSlug))
 
 		for _, server := range servers {
 			fmt.Println(server.Slug, server.Type, server.Metadata["issuer"])
