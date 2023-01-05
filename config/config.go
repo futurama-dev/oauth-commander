@@ -1,9 +1,9 @@
 package config
 
-import (
-	"errors"
-)
+func GetCurrentServer() string {
+	return "" // not implemented
+}
 
-func CurrentServerSlug() (string, error) {
-	return "", errors.New("not implemented")
+func SetCurrentServer(slug string) {
+	// not implemented
 }

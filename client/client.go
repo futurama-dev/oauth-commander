@@ -22,9 +22,9 @@ type Client struct {
 type Clients []Client
 
 func Load() Clients {
-	serverSlug, err := config.CurrentServerSlug()
+	serverSlug := config.GetCurrentServer()
 
-	if err != nil {
+	if len(serverSlug) == 0 {
 		return Clients{}
 	}
 
