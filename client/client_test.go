@@ -34,7 +34,7 @@ func Test_load(t *testing.T) {
 }
 
 func TestClients_FindBySlug(t *testing.T) {
-	clients := Load()
+	clients := load("example_org", "../testdata/server")
 
 	tests := []struct {
 		name string
@@ -53,6 +53,31 @@ func TestClients_FindBySlug(t *testing.T) {
 
 			if ok {
 				assert.Equalf(t, tt.slug, client.Slug, "FindBySlug(%v)", tt.slug)
+			}
+		})
+	}
+}
+
+func TestClients_FindById(t *testing.T) {
+	clients := load("example_org", "../testdata/server")
+
+	tests := []struct {
+		name string
+		id   string
+		want bool
+	}{
+		{"found", "client_id_1", true},
+		{"not found", "client_id_9", false},
+		{"slug", "client_1", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			client, ok := clients.FindById(tt.id)
+
+			assert.Equalf(t, tt.want, ok, "FindBySlug(%v)", tt.id)
+
+			if ok {
+				assert.Equalf(t, tt.id, client.Id, "FindBySlug(%v)", tt.id)
 			}
 		})
 	}
