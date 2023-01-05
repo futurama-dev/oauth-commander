@@ -68,11 +68,16 @@ func TestClient_Secret(t *testing.T) {
 		SecretHandle: "example_org_client_1",
 	}
 
-	err := client.SetSecret("sesame")
+	secret, err := client.Secret()
+
+	assert.Error(t, err)
+	assert.Equal(t, keyring.ErrNotFound, err)
+
+	err = client.SetSecret("sesame")
 
 	assert.NoError(t, err)
 
-	secret, err := client.Secret()
+	secret, err = client.Secret()
 
 	assert.NoError(t, err)
 	assert.Equal(t, "sesame", secret)
