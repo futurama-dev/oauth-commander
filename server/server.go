@@ -112,6 +112,10 @@ func remove(slug string, serverDir string) error {
 		if err != nil {
 			return err
 		}
+		if viper.GetString(config.SelectedServerSlug) == slug {
+			viper.Set(config.SelectedServerSlug, "")
+			viper.WriteConfig()
+		}
 	} else {
 		return err
 	}
