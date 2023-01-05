@@ -44,7 +44,7 @@ func Test_load(t *testing.T) {
 
 	servers := load("../testdata/server")
 
-	assert.Len(t, servers, 2)
+	assert.Len(t, servers, 3)
 }
 
 func Test_load_empty(t *testing.T) {
@@ -66,7 +66,7 @@ func TestServers_FindBySlug(t *testing.T) {
 		want bool
 	}{
 		{"found", "example_com", true},
-		{"not found", "example_org", false},
+		{"not found", "example_gov", false},
 		{"issuer", "https://example.com/", false},
 	}
 	for _, tt := range tests {
@@ -92,7 +92,7 @@ func TestServers_FindByIssuer(t *testing.T) {
 		want   bool
 	}{
 		{"found", "https://example.com/", true},
-		{"not found", "https://example.org/", false},
+		{"not found", "https://example.gov/", false},
 		{"slug", "example_com", false},
 	}
 	for _, tt := range tests {
