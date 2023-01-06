@@ -22,14 +22,15 @@ THE SOFTWARE.
 package cmd
 
 import (
-	"bufio"
 	"fmt"
 	"github.com/futurama-dev/oauth-commander/client"
 	"log"
 	"os"
 	"strings"
+	"syscall"
 
 	"github.com/spf13/cobra"
+	"golang.org/x/term"
 )
 
 // clientSecretPromptCmd represents the prompt command
@@ -47,14 +48,14 @@ to quickly create a Cobra application.`,
 		c, ok := client.FindBySlug(slug)
 
 		if ok {
-			reader := bufio.NewReader(os.Stdin)
 			fmt.Print("Enter client secret: ")
-			secret, err := reader.ReadString('\n')
+			secretBytes, err := term.ReadPassword(syscall.Stdin)
+			fmt.Println()
 			if err != nil {
 				log.Fatalln(err)
 			}
 
-			secret = strings.TrimRight(secret, "\n\r")
+			secret := strings.TrimRight(string(secretBytes), "\n\r")
 
 			if len(secret) == 0 {
 				fmt.Println("Secret cannot be empty")
