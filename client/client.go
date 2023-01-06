@@ -114,7 +114,7 @@ func (clients Clients) NextSlug() string {
 
 	return slug
 }
-func (client Client) Secret() (string, error) {
+func (client Client) GetSecret() (string, error) {
 	return keyring.Get("oauth-commander", client.SecretHandle)
 }
 
