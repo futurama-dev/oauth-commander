@@ -39,6 +39,7 @@ var rootCmd = &cobra.Command{
 	Short: "OAuth 2 and OpenID Connect command line client",
 	Long: `A command line client that allows you to explore and interact with both
 OAuth 2 and OpenID Connect Authorization servers.`,
+	Version: "0.0.1",
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
@@ -67,9 +68,11 @@ func initConfig() {
 	} else {
 		configDir := config.ConfigDir()
 
+		config.EnsureConfigFile()
+
 		viper.AddConfigPath(configDir)
-		viper.SetConfigType("yaml")
-		viper.SetConfigName("config.yaml")
+		viper.SetConfigType(config.FileType)
+		viper.SetConfigName(config.FileBaseName)
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
@@ -78,9 +81,6 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
 	} else {
-		err = viper.WriteConfig()
-		if err != nil {
-			log.Fatalln(err)
-		}
+		log.Fatalln(err)
 	}
 }
