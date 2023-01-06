@@ -7,6 +7,8 @@ package cmd
 import (
 	"fmt"
 	"github.com/futurama-dev/oauth-commander/client"
+	"github.com/futurama-dev/oauth-commander/config"
+	"github.com/spf13/viper"
 
 	"github.com/spf13/cobra"
 )
@@ -25,10 +27,11 @@ to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		clients := client.Load()
 
+		fmt.Println("Selected server:", viper.GetString(config.SelectedServerSlug))
 		fmt.Println("Number of clients:", len(clients))
 
 		for _, client := range clients {
-			fmt.Println(client.Slug, client.Type, client.CreatedAt)
+			fmt.Println(client.Slug, client.Type, client.Id, client.CreatedAt)
 		}
 	},
 }

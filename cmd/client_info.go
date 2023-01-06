@@ -60,6 +60,6 @@ to quickly create a Cobra application.`,
 
 func init() {
 	clientCmd.AddCommand(clientInfoCmd)
-	clientCmd.Flags().StringP("slug", "s", "", "Find info on client from slug")
-	clientCmd.Flags().StringP("clientId", "d", "", "Find in on client from client ID")
+	clientInfoCmd.Flags().StringP("slug", "s", "", "Find info on client from slug")
+	clientInfoCmd.Flags().StringP("clientId", "d", "", "Find in on client from client ID")
 }
