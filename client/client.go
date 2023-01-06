@@ -7,17 +7,20 @@ import (
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 )
 
 type Client struct {
 	Slug         string
-	Type         string
+	ServerSlug   string
 	CreatedAt    time.Time
 	Id           string
 	SecretHandle string
+	RedirectURIs []string
 }
 
 type Clients []Client
@@ -33,11 +36,10 @@ func Load() Clients {
 }
 
 func LoadForServer(serverSlug string) Clients {
-	return load(serverSlug, config.ServerDir())
+	return load(config.ClientDir(serverSlug))
 }
 
-func load(serverSlug string, serverDir string) Clients {
-	clientDir := filepath.Join(serverDir, serverSlug)
+func load(clientDir string) Clients {
 	files, err := ioutil.ReadDir(clientDir)
 
 	if err != nil {
@@ -92,10 +94,45 @@ func (clients Clients) FindById(clientId string) (Client, bool) {
 	return Client{}, false
 }
 
+func FindBySlug(slug string) (Client, bool) {
+	return Load().FindBySlug(slug)
+}
+
+func FindById(clientId string) (Client, bool) {
+	return Load().FindById(clientId)
+}
+
+func (clients Clients) NextSlug() string {
+	i := 0
+	ok := true
+	slug := ""
+	for ok {
+		i += 1
+		slug = "client_" + strconv.Itoa(i)
+		_, ok = clients.FindBySlug(slug)
+	}
+
+	return slug
+}
 func (client Client) Secret() (string, error) {
 	return keyring.Get("oauth-commander", client.SecretHandle)
 }
 
 func (client Client) SetSecret(secret string) error {
 	return keyring.Set("oauth-commander", client.SecretHandle, secret)
+}
+
+func NextSlug() string {
+	return Load().NextSlug()
+}
+
+func Save(client Client) error {
+	pathToFile := filepath.Join(config.ClientDir(client.ServerSlug), client.Slug+".yaml")
+
+	toWrite, err := yaml.Marshal(&client)
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(pathToFile, toWrite, 0644)
 }

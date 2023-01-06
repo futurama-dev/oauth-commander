@@ -31,7 +31,7 @@ to quickly create a Cobra application.`,
 		fmt.Println("Number of clients:", len(clients))
 
 		for _, client := range clients {
-			fmt.Println(client.Slug, client.Type, client.Id, client.CreatedAt)
+			fmt.Println(client.Slug, client.ServerSlug, client.Id, client.CreatedAt)
 		}
 	},
 }

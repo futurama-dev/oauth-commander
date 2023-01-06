@@ -27,14 +27,25 @@ func ConfigDir() string {
 }
 
 func ServerDir() string {
-	severConfig := configdir.LocalConfig("oauth-commander", "servers")
+	severDir := configdir.LocalConfig("oauth-commander", "servers")
 
-	err := configdir.MakePath(severConfig)
+	err := configdir.MakePath(severDir)
 	if err != nil {
 		panic(err)
 	}
 
-	return severConfig
+	return severDir
+}
+
+func ClientDir(slug string) string {
+	clientDir := configdir.LocalConfig("oauth-commander", "servers", slug)
+
+	err := configdir.MakePath(clientDir)
+	if err != nil {
+		panic(err)
+	}
+
+	return clientDir
 }
 
 func EnsureConfigFile() {

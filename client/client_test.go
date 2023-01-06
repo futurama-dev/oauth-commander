@@ -10,7 +10,7 @@ func Test_load_missing(t *testing.T) {
 	assert.DirExists(t, "../testdata/server")
 	assert.NoDirExists(t, "../testdata/server/example_com")
 
-	clients := load("example_com", "../testdata/server")
+	clients := load("../testdata/server/example_com")
 
 	assert.Empty(t, clients)
 }
@@ -19,7 +19,7 @@ func Test_load_empty(t *testing.T) {
 	assert.DirExists(t, "../testdata/server")
 	assert.DirExists(t, "../testdata/server/example_net")
 
-	clients := load("example_net", "../testdata/server")
+	clients := load("../testdata/server/example_net")
 
 	assert.Empty(t, clients)
 }
@@ -28,13 +28,13 @@ func Test_load(t *testing.T) {
 	assert.DirExists(t, "../testdata/server")
 	assert.DirExists(t, "../testdata/server/example_org")
 
-	clients := load("example_org", "../testdata/server")
+	clients := load("../testdata/server/example_org")
 
 	assert.Len(t, clients, 2)
 }
 
 func TestClients_FindBySlug(t *testing.T) {
-	clients := load("example_org", "../testdata/server")
+	clients := load("../testdata/server/example_org")
 
 	tests := []struct {
 		name string
@@ -59,7 +59,7 @@ func TestClients_FindBySlug(t *testing.T) {
 }
 
 func TestClients_FindById(t *testing.T) {
-	clients := load("example_org", "../testdata/server")
+	clients := load("../testdata/server/example_org")
 
 	tests := []struct {
 		name string
@@ -88,7 +88,7 @@ func TestClient_Secret(t *testing.T) {
 
 	client := Client{
 		Slug:         "client_1",
-		Type:         "oidc",
+		ServerSlug:   "example_org",
 		Id:           "client_id_1",
 		SecretHandle: "example_org_client_1",
 	}
