@@ -36,7 +36,7 @@ var infoCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Config file:", viper.ConfigFileUsed())
 		fmt.Println("Servers:", len(server.Load()))
-		fmt.Println("Selected server:", viper.GetString(config.SelectedServerSlug))
+		fmt.Println("Selected server:", config.GetSelectedServer())
 	},
 }
 

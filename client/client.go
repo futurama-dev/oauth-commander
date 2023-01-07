@@ -2,7 +2,6 @@ package client
 
 import (
 	"github.com/futurama-dev/oauth-commander/config"
-	"github.com/spf13/viper"
 	"github.com/zalando/go-keyring"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
@@ -16,17 +15,17 @@ import (
 
 type Client struct {
 	Slug         string
-	ServerSlug   string
-	CreatedAt    time.Time
+	ServerSlug   string    `yaml:"server_slug"`
+	CreatedAt    time.Time `yaml:"created_at"`
 	Id           string
-	SecretHandle string
-	RedirectURIs []string
+	SecretHandle string   `yaml:"secret_handle"`
+	RedirectURIs []string `yaml:"redirect_uris"`
 }
 
 type Clients []Client
 
 func Load() Clients {
-	serverSlug := viper.GetString(config.SelectedServerSlug)
+	serverSlug := config.GetSelectedServer()
 
 	if len(serverSlug) == 0 {
 		return Clients{}

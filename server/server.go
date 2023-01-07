@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/futurama-dev/oauth-commander/config"
 	"github.com/futurama-dev/oauth-commander/discovery"
-	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"log"
@@ -112,9 +111,11 @@ func remove(slug string, serverDir string) error {
 		if err != nil {
 			return err
 		}
-		if viper.GetString(config.SelectedServerSlug) == slug {
-			viper.Set(config.SelectedServerSlug, "")
-			viper.WriteConfig()
+		if config.GetSelectedServer() == slug {
+			err = config.SetSelectedServer("")
+			if err != nil {
+				return err
+			}
 		}
 	} else {
 		return err
@@ -127,9 +128,8 @@ func Save(server Server) error {
 	err := write(server, false, config.ServerDir())
 
 	if err == nil {
-		if len(viper.GetString(config.SelectedServerSlug)) == 0 {
-			viper.Set(config.SelectedServerSlug, server.Slug)
-			viper.WriteConfig()
+		if !config.IsSelectedServer() {
+			return config.SetSelectedServer(server.Slug)
 		}
 	}
 

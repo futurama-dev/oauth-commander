@@ -32,6 +32,7 @@ import (
 )
 
 var cfgFile string
+var verbose bool
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -40,9 +41,11 @@ var rootCmd = &cobra.Command{
 	Long: `A command line client that allows you to explore and interact with both
 OAuth 2 and OpenID Connect Authorization servers.`,
 	Version: "0.0.1",
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		if verbose {
+			fmt.Println("Selected server:", config.GetSelectedServer())
+		}
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -58,6 +61,7 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $PLATFORM_CONFIG_FOLDER/oauth-commander/config.yaml)")
+	rootCmd.PersistentFlags().BoolVar(&verbose, "verbose", false, "enable verbose output")
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -79,7 +83,9 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
+		if verbose {
+			fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
+		}
 	} else {
 		log.Fatalln(err)
 	}

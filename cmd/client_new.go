@@ -44,7 +44,7 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		serverSlug := viper.GetString(config.SelectedServerSlug)
+		serverSlug := config.GetSelectedServer()
 		if len(serverSlug) == 0 {
 			fmt.Println("no server selected")
 			os.Exit(1)
@@ -76,6 +76,19 @@ to quickly create a Cobra application.`,
 		err = client.Save(clientX)
 		if err != nil {
 			log.Fatalln(err)
+		}
+
+		fmt.Println("Client saved:", clientX.Slug)
+
+		slugs := viper.GetStringMapString(config.SelectedClientSlugs)
+		if len(slugs[serverSlug]) == 0 {
+			fmt.Println("Currently no selected client, selecting this one")
+			slugs[serverSlug] = clientSlug
+			viper.Set(config.SelectedClientSlugs, slugs)
+			err = viper.WriteConfig()
+			if err != nil {
+				log.Fatalln(err)
+			}
 		}
 	},
 }
