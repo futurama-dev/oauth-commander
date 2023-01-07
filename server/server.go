@@ -144,7 +144,7 @@ func write(server Server, overwrite bool, serverDir string) error {
 	pathToFile := filepath.Join(serverDir, server.Slug+".yaml")
 	_, err := os.Stat(pathToFile)
 	if overwrite {
-		if err != os.ErrNotExist {
+		if err == os.ErrNotExist {
 			return errors.New("file not found to update")
 		}
 	} else {
