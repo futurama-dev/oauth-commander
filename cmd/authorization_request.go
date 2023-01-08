@@ -65,7 +65,12 @@ var authorizationRequestCmd = &cobra.Command{
 			return err
 		}
 
-		authUrl, err := authorization.GenerateAuthorizationRequestUrl(serverSlug, clientSlug, code, token, id_token, scope)
+		redirectUri, err := cmd.Flags().GetString("redirect-uri")
+		if err != nil {
+			return err
+		}
+
+		authUrl, err := authorization.GenerateAuthorizationRequestUrl(serverSlug, clientSlug, code, token, id_token, scope, redirectUri)
 		if err != nil {
 			return err
 		}
@@ -95,6 +100,7 @@ func init() {
 
 	authorizationRequestCmd.Flags().StringP("action", "a", "print", "Action to take: print, open or listen.")
 	authorizationRequestCmd.Flags().StringArrayP("scope", "s", []string{}, "List of scopes to add to the request")
+	authorizationRequestCmd.Flags().StringP("redirect-uri", "r", "", "The redirect URI to use with the request. Must be one of the configured ones for the client. Default to first one.")
 
 	authorizationRequestCmd.Flags().BoolP("code", "c", true, "Add response type code")
 	authorizationRequestCmd.Flags().BoolP("token", "t", false, "Add response type token")

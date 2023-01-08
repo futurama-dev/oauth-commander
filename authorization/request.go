@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func GenerateAuthorizationRequestUrl(serverSlug, clientSlug string, code, toke, idToken bool, scopes []string) (string, error) {
+func GenerateAuthorizationRequestUrl(serverSlug, clientSlug string, code, toke, idToken bool, scopes []string, redirectUri string) (string, error) {
 	servers := server.Load()
 	s, ok := servers.FindBySlug(serverSlug)
 	if !ok {
@@ -36,6 +36,11 @@ func GenerateAuthorizationRequestUrl(serverSlug, clientSlug string, code, toke, 
 		return "", err
 	}
 
+	redirectUri, err = getRedirectUri(c, redirectUri)
+	if err != nil {
+		return "", err
+	}
+
 	query := baseURL.Query()
 	query.Set("client_id", c.GetClientId())
 	query.Set("response_type", responseType)
@@ -43,6 +48,8 @@ func GenerateAuthorizationRequestUrl(serverSlug, clientSlug string, code, toke, 
 	if len(scope) > 0 {
 		query.Set("scope", scope)
 	}
+
+	query.Set("redirect_uri", redirectUri)
 
 	baseURL.RawQuery = query.Encode()
 
@@ -107,4 +114,23 @@ func generateScope(s server.Server, scopes []string) (string, error) {
 	}
 
 	return strings.Join(scopes, " "), nil
+}
+
+func getRedirectUri(c client.Client, redirectUri string) (string, error) {
+	registeredRedirectUris := c.GetRedirectUris()
+
+	if len(registeredRedirectUris) == 0 {
+		return "", errors.New("no registered redirect uris")
+	}
+
+	if len(redirectUri) == 0 {
+		return registeredRedirectUris[0], nil
+	} else {
+		for _, registeredRedirectUri := range registeredRedirectUris {
+			if redirectUri == registeredRedirectUri {
+				return redirectUri, nil
+			}
+		}
+		return "", errors.New("not a registered redirect uri: " + redirectUri)
+	}
 }

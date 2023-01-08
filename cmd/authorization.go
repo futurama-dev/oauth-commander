@@ -33,8 +33,9 @@ var authorizationCmd = &cobra.Command{
 	Use:     "authorization <sub-command>",
 	Aliases: []string{"auth"},
 	Short:   "Parent command for authorization commands",
-	Run: func(cmd *cobra.Command, args []string) {
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		if verbose {
+			fmt.Println("Selected server:", config.GetSelectedServer())
 			fmt.Println("Selected client:", config.GetSelectedClient())
 		}
 	},
