@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 futurama-dev
+Copyright © 2023 futurama-dev
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -28,11 +28,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// clientCmd represents the client command
-var clientCmd = &cobra.Command{
-	Use:   "client <sub-command>",
-	Short: "Parent command for client management commands",
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+// authorizationCmd represents the authorization command
+var authorizationCmd = &cobra.Command{
+	Use:     "authorization <sub-command>",
+	Aliases: []string{"auth"},
+	Short:   "Parent command for authorization commands",
+	Run: func(cmd *cobra.Command, args []string) {
 		if verbose {
 			fmt.Println("Selected client:", config.GetSelectedClient())
 		}
@@ -40,5 +41,5 @@ var clientCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(clientCmd)
+	rootCmd.AddCommand(authorizationCmd)
 }

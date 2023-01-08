@@ -1,0 +1,102 @@
+/*
+Copyright © 2023 futurama-dev
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+package cmd
+
+import (
+	"errors"
+	"fmt"
+	"github.com/futurama-dev/oauth-commander/authorization"
+	"github.com/futurama-dev/oauth-commander/config"
+	"github.com/spf13/cobra"
+)
+
+// authorizationRequestCmd represents the request command
+var authorizationRequestCmd = &cobra.Command{
+	Use:     "request",
+	Aliases: []string{"req"},
+	Short:   "Initiate an authorization request",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		serverSlug := config.GetSelectedServer()
+		if len(serverSlug) == 0 {
+			return errors.New("no selected server")
+		}
+
+		clientSlug := config.GetSelectedClient()
+		if len(clientSlug) == 0 {
+			return errors.New("no selected client")
+		}
+
+		scope, err := cmd.Flags().GetStringArray("scope")
+		if err != nil {
+			return err
+		}
+
+		code, err := cmd.Flags().GetBool("code")
+		if err != nil {
+			return err
+		}
+
+		token, err := cmd.Flags().GetBool("token")
+		if err != nil {
+			return err
+		}
+
+		id_token, err := cmd.Flags().GetBool("id-token")
+		if err != nil {
+			return err
+		}
+
+		authUrl, err := authorization.GenerateAuthorizationRequestUrl(serverSlug, clientSlug, code, token, id_token, scope)
+		if err != nil {
+			return err
+		}
+
+		action, err := cmd.Flags().GetString("action")
+		if err != nil {
+			return err
+		}
+
+		switch action {
+		case "print":
+			fmt.Println(authUrl)
+		case "open":
+			return errors.New("Action not implemented: " + action)
+		case "listen":
+			return errors.New("Action not implemented: " + action)
+		default:
+			return errors.New("Action not supported: " + action)
+		}
+
+		return nil
+	},
+}
+
+func init() {
+	authorizationCmd.AddCommand(authorizationRequestCmd)
+
+	authorizationRequestCmd.Flags().StringP("action", "a", "print", "Action to take: print, open or listen.")
+	authorizationRequestCmd.Flags().StringArrayP("scope", "s", []string{}, "List of scopes to add to the request")
+
+	authorizationRequestCmd.Flags().BoolP("code", "c", true, "Add response type code")
+	authorizationRequestCmd.Flags().BoolP("token", "t", false, "Add response type token")
+	authorizationRequestCmd.Flags().BoolP("id-token", "i", false, "Add response type id_token")
+}

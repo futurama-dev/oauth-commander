@@ -22,6 +22,10 @@ type Client struct {
 	RedirectURIs []string `yaml:"redirect_uris"`
 }
 
+func (c Client) GetClientId() string {
+	return c.Id
+}
+
 type Clients []Client
 
 func Load() Clients {
