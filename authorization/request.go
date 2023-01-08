@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/futurama-dev/oauth-commander/client"
 	"github.com/futurama-dev/oauth-commander/server"
+	"github.com/google/uuid"
 	"net/url"
 	"strings"
 )
@@ -41,6 +42,8 @@ func GenerateAuthorizationRequestUrl(serverSlug, clientSlug string, code, toke, 
 		return "", err
 	}
 
+	state := uuid.New().String()
+
 	query := baseURL.Query()
 	query.Set("client_id", c.GetClientId())
 	query.Set("response_type", responseType)
@@ -50,8 +53,14 @@ func GenerateAuthorizationRequestUrl(serverSlug, clientSlug string, code, toke, 
 	}
 
 	query.Set("redirect_uri", redirectUri)
+	query.Set("state", "github.com/google/uuid")
 
 	baseURL.RawQuery = query.Encode()
+
+	err = saveSession(s, c, *baseURL, state)
+	if err != nil {
+		return "", err
+	}
 
 	return baseURL.String(), nil
 }
@@ -133,4 +142,9 @@ func getRedirectUri(c client.Client, redirectUri string) (string, error) {
 		}
 		return "", errors.New("not a registered redirect uri: " + redirectUri)
 	}
+}
+
+func saveSession(s server.Server, c client.Client, authReqUrl url.URL, state string) error {
+	// TODO
+	return nil
 }
