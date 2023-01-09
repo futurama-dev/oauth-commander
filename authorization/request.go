@@ -2,14 +2,16 @@ package authorization
 
 import (
 	"errors"
+	"fmt"
 	"github.com/futurama-dev/oauth-commander/client"
+	"github.com/futurama-dev/oauth-commander/config"
 	"github.com/futurama-dev/oauth-commander/server"
 	"github.com/google/uuid"
 	"net/url"
 	"strings"
 )
 
-func GenerateAuthorizationRequestUrl(serverSlug, clientSlug string, code, toke, idToken bool, scopes []string, redirectUri string) (string, error) {
+func GenerateAuthorizationRequestUrl(serverSlug, clientSlug string, code, toke, idToken bool, scopes []string, redirectUri string, verbose bool) (string, error) {
 	servers := server.Load()
 	s, ok := servers.FindBySlug(serverSlug)
 	if !ok {
@@ -53,13 +55,17 @@ func GenerateAuthorizationRequestUrl(serverSlug, clientSlug string, code, toke, 
 	}
 
 	query.Set("redirect_uri", redirectUri)
-	query.Set("state", "github.com/google/uuid")
+	query.Set("state", state)
 
 	baseURL.RawQuery = query.Encode()
 
 	err = saveSession(s, c, *baseURL, state)
 	if err != nil {
 		return "", err
+	}
+
+	if verbose {
+		fmt.Println("New session created for state:", state)
 	}
 
 	return baseURL.String(), nil
@@ -145,6 +151,5 @@ func getRedirectUri(c client.Client, redirectUri string) (string, error) {
 }
 
 func saveSession(s server.Server, c client.Client, authReqUrl url.URL, state string) error {
-	// TODO
-	return nil
+	return config.NewSession(state, authReqUrl, s.Slug, c.Slug).Save()
 }

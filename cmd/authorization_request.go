@@ -70,7 +70,7 @@ var authorizationRequestCmd = &cobra.Command{
 			return err
 		}
 
-		authUrl, err := authorization.GenerateAuthorizationRequestUrl(serverSlug, clientSlug, code, token, id_token, scope, redirectUri)
+		authUrl, err := authorization.GenerateAuthorizationRequestUrl(serverSlug, clientSlug, code, token, id_token, scope, redirectUri, verbose)
 		if err != nil {
 			return err
 		}
