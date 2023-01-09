@@ -26,6 +26,7 @@ import (
 	"fmt"
 	"github.com/futurama-dev/oauth-commander/authorization"
 	"github.com/futurama-dev/oauth-commander/config"
+	"github.com/pkg/browser"
 	"github.com/spf13/cobra"
 )
 
@@ -75,20 +76,27 @@ var authorizationRequestCmd = &cobra.Command{
 			return err
 		}
 
-		action, err := cmd.Flags().GetString("action")
+		fmt.Println(authUrl)
+
+		open, err := cmd.Flags().GetBool("open")
 		if err != nil {
 			return err
 		}
 
-		switch action {
-		case "print":
-			fmt.Println(authUrl)
-		case "open":
-			return errors.New("Action not implemented: " + action)
-		case "listen":
-			return errors.New("Action not implemented: " + action)
-		default:
-			return errors.New("Action not supported: " + action)
+		if open {
+			err = browser.OpenURL(authUrl)
+			if err != nil {
+				return err
+			}
+		}
+
+		listen, err := cmd.Flags().GetBool("listen")
+		if err != nil {
+			return err
+		}
+
+		if listen {
+
 		}
 
 		return nil
@@ -98,11 +106,13 @@ var authorizationRequestCmd = &cobra.Command{
 func init() {
 	authorizationCmd.AddCommand(authorizationRequestCmd)
 
-	authorizationRequestCmd.Flags().StringP("action", "a", "print", "Action to take: print, open or listen.")
 	authorizationRequestCmd.Flags().StringArrayP("scope", "s", []string{}, "List of scopes to add to the request")
 	authorizationRequestCmd.Flags().StringP("redirect-uri", "r", "", "The redirect URI to use with the request. Must be one of the configured ones for the client. Default to first one.")
 
 	authorizationRequestCmd.Flags().BoolP("code", "c", true, "Add response type code")
 	authorizationRequestCmd.Flags().BoolP("token", "t", false, "Add response type token")
 	authorizationRequestCmd.Flags().BoolP("id-token", "i", false, "Add response type id_token")
+
+	authorizationRequestCmd.Flags().BoolP("open", "o", false, "Open authorization request URL in default browser")
+	authorizationRequestCmd.Flags().BoolP("listen", "l", false, "Start a web server and listen the response. The redirect URI must be localhost and handled by OAuth Commander")
 }
