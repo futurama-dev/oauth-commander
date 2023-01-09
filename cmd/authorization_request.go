@@ -96,7 +96,10 @@ var authorizationRequestCmd = &cobra.Command{
 		}
 
 		if listen {
-
+			err = authorization.Listen()
+			if err != nil {
+				return err
+			}
 		}
 
 		return nil

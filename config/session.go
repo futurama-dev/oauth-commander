@@ -22,12 +22,13 @@ func SetDefaultSessionDuration() {
 }
 
 type Session struct {
-	State      string
-	AuthReqUrl string    `yaml:"auth_req_url" mapstructure:"auth_req_url"`
-	ServerSlug string    `yaml:"server_slug" mapstructure:"server_slug"`
-	ClientSlug string    `yaml:"client_slug" mapstructure:"client_slug"`
-	CreatedAt  time.Time `yaml:"created_at" mapstructure:"created_at"`
-	ExpiresAt  time.Time `yaml:"expires_at" mapstructure:"expires_at"`
+	State       string
+	AuthReqUrl  string    `yaml:"auth_req_url" mapstructure:"auth_req_url"`
+	ServerSlug  string    `yaml:"server_slug" mapstructure:"server_slug"`
+	ClientSlug  string    `yaml:"client_slug" mapstructure:"client_slug"`
+	CreatedAt   time.Time `yaml:"created_at" mapstructure:"created_at"`
+	ExpiresAt   time.Time `yaml:"expires_at" mapstructure:"expires_at"`
+	CompletedAt time.Time `yaml:"completed_at" mapstructure:"completed_at"`
 }
 
 func NewSession(state string, authReqUrl url.URL, serverSlug, clientSlug string) Session {
