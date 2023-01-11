@@ -80,11 +80,11 @@ to quickly create a Cobra application.`,
 
 		fmt.Println("Client saved:", clientX.Slug)
 
-		slugs := viper.GetStringMapString(config.SelectedClientSlugs)
+		slugs := viper.GetStringMapString(config.SelectedClientSlug)
 		if len(slugs[serverSlug]) == 0 {
 			fmt.Println("Currently no selected client, selecting this one")
 			slugs[serverSlug] = clientSlug
-			viper.Set(config.SelectedClientSlugs, slugs)
+			viper.Set(config.SelectedClientSlug, slugs)
 			err = viper.WriteConfig()
 			if err != nil {
 				log.Fatalln(err)
