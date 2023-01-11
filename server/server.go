@@ -21,6 +21,30 @@ type Server struct {
 	Metadata  map[string]any
 }
 
+func (s Server) GetAuthorizationEndpoint() string {
+	if endpoint := s.Metadata["authorization_endpoint"]; endpoint == nil {
+		return ""
+	} else {
+		return endpoint.(string)
+	}
+}
+
+func (s Server) GetSupportedScopes() []string {
+	if scopesSupported := s.Metadata["scopes_supported"]; scopesSupported == nil {
+		return []string{}
+	} else {
+		return scopesSupported.([]string)
+	}
+}
+
+func (s Server) GetSupportedResponseTypes() []string {
+	if responseTypesSupported := s.Metadata["response_types_supported"]; responseTypesSupported == nil {
+		return []string{}
+	} else {
+		return responseTypesSupported.([]string)
+	}
+}
+
 type Servers []Server
 
 func Load() Servers {

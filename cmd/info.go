@@ -37,6 +37,7 @@ var infoCmd = &cobra.Command{
 		fmt.Println("Config file:", viper.ConfigFileUsed())
 		fmt.Println("Servers:", len(server.Load()))
 		fmt.Println("Selected server:", config.GetSelectedServer())
+		fmt.Println("Selected client:", config.GetSelectedClient())
 	},
 }
 

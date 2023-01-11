@@ -1,6 +1,8 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"github.com/spf13/viper"
+)
 
 const (
 	SelectedServerSlug = "selected_server_slug"
@@ -33,4 +35,8 @@ func GetSelectedClientForServer(serverSlug string) string {
 	slugs := viper.GetStringMapString(SelectedClientSlug)
 
 	return slugs[serverSlug]
+}
+
+func SetDefaults() {
+	SetDefaultSessionDuration()
 }

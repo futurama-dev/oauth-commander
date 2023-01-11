@@ -22,6 +22,18 @@ type Client struct {
 	RedirectURIs []string `yaml:"redirect_uris"`
 }
 
+func (c Client) GetClientId() string {
+	return c.Id
+}
+
+func (c Client) GetRedirectUris() []string {
+	if c.RedirectURIs == nil {
+		return []string{}
+	} else {
+		return c.RedirectURIs
+	}
+}
+
 type Clients []Client
 
 func Load() Clients {
@@ -113,12 +125,12 @@ func (clients Clients) NextSlug() string {
 
 	return slug
 }
-func (client Client) GetSecret() (string, error) {
-	return keyring.Get("oauth-commander", client.SecretHandle)
+func (c Client) GetSecret() (string, error) {
+	return keyring.Get("oauth-commander", c.SecretHandle)
 }
 
-func (client Client) SetSecret(secret string) error {
-	return keyring.Set("oauth-commander", client.SecretHandle, secret)
+func (c Client) SetSecret(secret string) error {
+	return keyring.Set("oauth-commander", c.SecretHandle, secret)
 }
 
 func NextSlug() string {

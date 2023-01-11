@@ -4,7 +4,9 @@ go 1.18
 
 require (
 	github.com/atotto/clipboard v0.1.4
+	github.com/google/uuid v1.1.2
 	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
+	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/viper v1.14.0
 	github.com/stretchr/testify v1.8.1
