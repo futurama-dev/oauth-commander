@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -30,19 +31,47 @@ func (s Server) GetAuthorizationEndpoint() string {
 }
 
 func (s Server) GetSupportedScopes() []string {
-	if scopesSupported := s.Metadata["scopes_supported"]; scopesSupported == nil {
+	scopesSupported, err := extractStringSlice(s.Metadata["scopes_supported"])
+	if err != nil {
+		// TODO log or maybe error
 		return []string{}
-	} else {
-		return scopesSupported.([]string)
 	}
+
+	return scopesSupported
 }
 
 func (s Server) GetSupportedResponseTypes() []string {
-	if responseTypesSupported := s.Metadata["response_types_supported"]; responseTypesSupported == nil {
+	typesSupported, err := extractStringSlice(s.Metadata["response_types_supported"])
+	if err != nil {
+		// TODO log or maybe error
 		return []string{}
-	} else {
-		return responseTypesSupported.([]string)
 	}
+
+	return typesSupported
+}
+
+func extractStringSlice(data interface{}) ([]string, error) {
+	if data == nil {
+		return []string{}, nil
+	}
+
+	dataSlice, ok := data.([]interface{})
+	if !ok {
+		return []string{}, errors.New("not a slice")
+	}
+
+	dataStringSlice := []string{}
+
+	for idx, dataElement := range dataSlice {
+		dataString, ok := dataElement.(string)
+		if !ok {
+			return []string{}, errors.New("not a string element at index " + strconv.Itoa(idx))
+		}
+
+		dataStringSlice = append(dataStringSlice, dataString)
+	}
+
+	return dataStringSlice, nil
 }
 
 type Servers []Server

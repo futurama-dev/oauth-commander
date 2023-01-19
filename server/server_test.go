@@ -106,3 +106,68 @@ func TestServers_FindByIssuer(t *testing.T) {
 		})
 	}
 }
+
+func Test_extractStringSlice(t *testing.T) {
+	tests := []struct {
+		name    string
+		data    interface{}
+		want    []string
+		wantErr bool
+	}{
+		{
+			"nil",
+			nil,
+			[]string{},
+			false,
+		},
+		{
+			"empty",
+			[]interface{}{},
+			[]string{},
+			false,
+		},
+		{
+			"one element",
+			[]interface{}{
+				"element one",
+			},
+			[]string{"element one"},
+			false,
+		},
+		{
+			"three elements",
+			[]interface{}{
+				"element one",
+				"element two",
+				"element three",
+			},
+			[]string{"element one", "element two", "element three"},
+			false,
+		},
+		{
+			"not an array",
+			struct{}{},
+			[]string{},
+			true,
+		},
+		{
+			"not a string element",
+			[]interface{}{
+				3.14,
+			},
+			[]string{},
+			true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := extractStringSlice(tt.data)
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+			assert.Equalf(t, tt.want, got, "extractStringSlice(%v)", tt.data)
+		})
+	}
+}
