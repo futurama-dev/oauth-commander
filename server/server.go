@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/futurama-dev/oauth-commander/config"
 	"github.com/futurama-dev/oauth-commander/discovery"
+	pkce "github.com/nirasan/go-oauth-pkce-code-verifier"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"log"
@@ -48,6 +49,64 @@ func (s Server) GetSupportedResponseTypes() []string {
 	}
 
 	return typesSupported
+}
+
+func (s Server) GetSupportedCodeChallengeMethods() []string {
+	methodsSupported, err := extractStringSlice(s.Metadata["code_challenge_methods_supported"])
+	if err != nil {
+		// TODO log or maybe error
+		return []string{}
+	}
+
+	return methodsSupported
+}
+
+func (s Server) IsPkceSupported() bool {
+	return len(s.GetSupportedCodeChallengeMethods()) > 0
+}
+
+func (s Server) IsPkceMethodS256Supported() bool {
+	if s.IsPkceSupported() {
+		for _, method := range s.GetSupportedCodeChallengeMethods() {
+			if method == "S256" {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+func (s Server) GenerateCodeVerifier() (string, string, string, error) {
+	if !s.IsPkceSupported() {
+		return "", "", "", errors.New("PKCE not supported")
+	}
+
+	var codeChallengeMethod, codeVerifier, codeChallenge string
+
+	if s.IsPkceMethodS256Supported() {
+		codeChallengeMethod = "S256"
+	} else {
+		codeChallengeMethod = s.GetSupportedCodeChallengeMethods()[0]
+	}
+
+	verifier, err := pkce.CreateCodeVerifier()
+	if err != nil {
+		return "", "", "", err
+	}
+
+	switch codeChallengeMethod {
+	case "S256":
+		codeChallenge = verifier.CodeChallengeS256()
+	case "plain":
+		codeChallenge = verifier.CodeChallengePlain()
+	default:
+		return "", "", "", errors.New("unknown Code Challenge Method: " + codeChallengeMethod)
+	}
+
+	codeVerifier = verifier.String()
+
+	return codeChallengeMethod, codeVerifier, codeChallenge, nil
 }
 
 func extractStringSlice(data interface{}) ([]string, error) {

@@ -57,9 +57,22 @@ func GenerateAuthorizationRequestUrl(serverSlug, clientSlug string, code, toke, 
 	query.Set("redirect_uri", redirectUri)
 	query.Set("state", state)
 
+	verifier := ""
+	if s.IsPkceSupported() {
+		var method, challenge string
+
+		method, verifier, challenge, err = s.GenerateCodeVerifier()
+		if err != nil {
+			return "", err
+		}
+
+		query.Set("code_challenge_method", method)
+		query.Set("code_challenge", challenge)
+	}
+
 	baseURL.RawQuery = query.Encode()
 
-	err = saveSession(s, c, *baseURL, state)
+	err = saveSession(s, c, *baseURL, state, verifier)
 	if err != nil {
 		return "", err
 	}
@@ -150,6 +163,6 @@ func getRedirectUri(c client.Client, redirectUri string) (string, error) {
 	}
 }
 
-func saveSession(s server.Server, c client.Client, authReqUrl url.URL, state string) error {
-	return config.NewSession(state, authReqUrl, s.Slug, c.Slug).Save()
+func saveSession(s server.Server, c client.Client, authReqUrl url.URL, state string, codeVerifier string) error {
+	return config.NewSession(state, authReqUrl, s.Slug, c.Slug, codeVerifier).Save()
 }

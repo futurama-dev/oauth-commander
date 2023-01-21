@@ -16,6 +16,7 @@ func TestSession_IsExpired(t *testing.T) {
 		"6cac71ed-8051-47e0-b3ed-50543204f8d2",
 		*authReqParsedUrl,
 		"some_server",
-		"some_client")
+		"some_client",
+		"dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk")
 	assert.False(t, s.IsExpired())
 }
