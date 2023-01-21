@@ -1,11 +1,18 @@
 package client
 
 import (
+	"encoding/json"
+	"errors"
 	"github.com/futurama-dev/oauth-commander/config"
+	"github.com/futurama-dev/oauth-commander/oauth2"
+	"github.com/futurama-dev/oauth-commander/server"
+	"github.com/futurama-dev/oauth-commander/session"
 	"github.com/zalando/go-keyring"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"log"
+	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -32,6 +39,99 @@ func (c Client) GetRedirectUris() []string {
 	} else {
 		return c.RedirectURIs
 	}
+}
+
+func (c Client) GetServer() (server.Server, error) {
+	servers := server.Load()
+
+	svr, found := servers.FindBySlug(c.ServerSlug)
+	if !found {
+		return server.Server{}, errors.New("server slug not found: " + c.ServerSlug)
+	}
+
+	return svr, nil
+}
+
+func (c Client) ExchangeCode(code, redirectUri, codeVerifier string) (oauth2.AccessTokenResponse, error) {
+	svr, err := c.GetServer()
+	if err != nil {
+		return oauth2.AccessTokenResponse{}, err
+	}
+
+	data := url.Values{
+		"grant_type":   {"authorization_code"},
+		"code":         {code},
+		"redirect_uri": {redirectUri},
+		"client_id":    {c.Id},
+	}
+
+	if codeVerifier != "" {
+		data["code_verifier"] = []string{codeVerifier}
+	}
+
+	resp, err := http.PostForm(svr.GetTokenEndpoint(), data)
+	if err != nil {
+		return oauth2.AccessTokenResponse{}, err
+	}
+
+	var tr oauth2.AccessTokenResponse
+	err = json.NewDecoder(resp.Body).Decode(&tr)
+	if err != nil {
+		return oauth2.AccessTokenResponse{}, err
+	}
+
+	return tr, nil
+}
+
+func ProcessResponse(ar oauth2.AuthorizationResponse) error {
+	ar.Println()
+
+	if ar.State == "" {
+		// TODO allow for responses without a state: either use selected server and client or take server and client
+		// slugs as argument then retrieve all pending sessions for that server and client and if exactly one then
+		// use that session
+		return errors.New("cannot process an authorization response without a state")
+	}
+
+	sessions, err := session.GetAuthorizationSessions()
+	if err != nil {
+		return err
+	}
+
+	s, found := sessions.FindByState(ar.State)
+	if !found {
+		return errors.New("state not found: " + ar.State)
+	}
+
+	if s.IsExpired() {
+		return errors.New("state expired: " + ar.State)
+	}
+
+	if ar.HasCode() {
+		cl, found := LoadForServer(s.ServerSlug).FindBySlug(s.ClientSlug)
+		if !found {
+			return errors.New("client slug not found: " + s.ClientSlug + ", under server: " + s.ServerSlug)
+		}
+
+		redirectUri, err := s.GetRedirectUri()
+		if err != nil {
+			return err
+		}
+
+		tr, err := cl.ExchangeCode(ar.Code, redirectUri, s.CodeVerifier)
+		if err != nil {
+			return err
+		}
+
+		tr.Println()
+		// TODO save tokens
+	}
+
+	if ar.HasTokens() {
+		// TODO save tokens
+	}
+
+	return nil
 }
 
 type Clients []Client

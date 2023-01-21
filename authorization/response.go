@@ -3,7 +3,9 @@ package authorization
 import (
 	"errors"
 	"fmt"
-	"github.com/futurama-dev/oauth-commander/config"
+	"github.com/futurama-dev/oauth-commander/client"
+	"github.com/futurama-dev/oauth-commander/oauth2"
+	"github.com/futurama-dev/oauth-commander/session"
 	"log"
 	"net/http"
 	"net/url"
@@ -31,21 +33,22 @@ func oauthCallback(resp http.ResponseWriter, req *http.Request) {
 		for key, value := range req.Form {
 			fmt.Println(key, "=", value)
 		}
+		log.Fatalln("not implemented")
 	} else if req.Method == "GET" {
 		authResponse, err := ProcessResponseUrl(responseUrl)
 
 		if err != nil {
-			errorResp, ok := err.(ErrorResponse)
+			errorResp, ok := err.(oauth2.ErrorResponse)
 			if ok {
 				errorResp.Println()
 			} else {
 				log.Fatalln(err)
 			}
 		} else {
-			// TODO handle successful response
-			// exchange code
-			// save all tokens
-			authResponse.Println()
+			err = client.ProcessResponse(authResponse)
+			if err != nil {
+				log.Fatalln(err)
+			}
 		}
 	} else {
 		log.Fatalln("HTTP method not supported: ", req.Method)
@@ -61,74 +64,28 @@ func oauthCallback(resp http.ResponseWriter, req *http.Request) {
 	os.Exit(0)
 }
 
-type AuthorizationResponse struct {
-	State   string
-	Code    string
-	Token   string
-	IdToken string
-}
-
-func (ar AuthorizationResponse) Println() {
-	if ar.State != "" {
-		fmt.Println("state:", ar.State)
-	}
-	if ar.Code != "" {
-		fmt.Println("code:", ar.Code[:5]+"...")
-	}
-	if ar.Token != "" {
-		fmt.Println("token:", ar.Token[:5]+"...")
-	}
-	if ar.IdToken != "" {
-		fmt.Println("id_token:", ar.IdToken)
-	}
-}
-
-type ErrorResponse struct {
-	ErrorCode        string
-	ErrorDescription string
-	ErrorUri         *url.URL
-	State            string
-}
-
-func (er ErrorResponse) Error() string {
-	return er.ErrorCode
-}
-
-func (er ErrorResponse) Println() {
-	fmt.Println("errpr:", er.ErrorCode)
-	if er.ErrorDescription != "" {
-		fmt.Println("error_description", er.ErrorDescription)
-	}
-	if er.ErrorUri != nil {
-		fmt.Println("error_uri", er.ErrorUri.String())
-	}
-	if er.State != "" {
-		fmt.Println("state", er.State)
-	}
-}
-
-func ProcessResponseUrl(responseUrl *url.URL) (AuthorizationResponse, error) {
+func ProcessResponseUrl(responseUrl *url.URL) (oauth2.AuthorizationResponse, error) {
 	query := responseUrl.Query()
 	if !query.Has("state") {
-		return AuthorizationResponse{}, errors.New("state parameter missing")
+		return oauth2.AuthorizationResponse{}, errors.New("state parameter missing")
 	}
 
 	state := query.Get("state")
 
-	sessions, err := config.GetAuthorizationSessions()
+	sessions, err := session.GetAuthorizationSessions()
 	if err != nil {
-		return AuthorizationResponse{}, err
+		return oauth2.AuthorizationResponse{}, err
 	}
 
 	sess, found := sessions.FindByState(state)
 	if !found {
-		return AuthorizationResponse{}, errors.New("no session found for state: " + state)
+		return oauth2.AuthorizationResponse{}, errors.New("no session found for state: " + state)
 	}
 
 	sess.CompletedAt = time.Now().Truncate(time.Second)
-	err = config.SetAuthorizationSessions(sessions)
+	err = session.SetAuthorizationSessions(sessions)
 	if err != nil {
-		return AuthorizationResponse{}, err
+		return oauth2.AuthorizationResponse{}, err
 	}
 
 	if query.Has("error") {
@@ -139,11 +96,11 @@ func ProcessResponseUrl(responseUrl *url.URL) (AuthorizationResponse, error) {
 
 			errorUri, err = url.Parse(errorUriStr)
 			if err != nil {
-				return AuthorizationResponse{}, errors.New("invalid error_uri: " + errorUriStr)
+				return oauth2.AuthorizationResponse{}, errors.New("invalid error_uri: " + errorUriStr)
 			}
 		}
 
-		return AuthorizationResponse{}, ErrorResponse{
+		return oauth2.AuthorizationResponse{}, oauth2.ErrorResponse{
 			ErrorCode:        query.Get("error"),
 			ErrorDescription: query.Get("error_description"),
 			ErrorUri:         errorUri,
@@ -151,7 +108,7 @@ func ProcessResponseUrl(responseUrl *url.URL) (AuthorizationResponse, error) {
 		}
 	}
 
-	return AuthorizationResponse{
+	return oauth2.AuthorizationResponse{
 		State:   query.Get("state"),
 		Code:    query.Get("code"),
 		Token:   query.Get("token"),

@@ -1,25 +1,16 @@
-package config
+package session
 
 import (
 	"errors"
+	"github.com/futurama-dev/oauth-commander/config"
 	"github.com/spf13/viper"
 	"net/url"
 	"time"
 )
 
 const (
-	authorizationSessions  = "auth_sessions"
-	sessionDuration        = "session_duration"
-	defaultSessionDuration = time.Minute * 10
+	authorizationSessions = "auth_sessions"
 )
-
-func GetSessionDuration() time.Duration {
-	return viper.GetDuration(sessionDuration)
-}
-
-func SetDefaultSessionDuration() {
-	viper.SetDefault(sessionDuration, defaultSessionDuration)
-}
 
 type Session struct {
 	State        string
@@ -42,7 +33,7 @@ func NewSession(state string, authReqUrl url.URL, serverSlug, clientSlug string,
 		ClientSlug:   clientSlug,
 		CodeVerifier: codeVerifier,
 		CreatedAt:    now,
-		ExpiresAt:    now.Add(GetSessionDuration()),
+		ExpiresAt:    now.Add(config.GetSessionDuration()),
 	}
 }
 
@@ -66,6 +57,21 @@ func (s Session) IsExpired() bool {
 
 	//return s.ExpiresAt.Before(now) || s.ExpiresAt.Equal(now)
 	return !s.ExpiresAt.After(now)
+}
+
+func (s Session) GetRedirectUri() (string, error) {
+	reqUrl, err := url.Parse(s.AuthReqUrl)
+	if err != nil {
+		return "", err
+	}
+
+	redirectUri := reqUrl.Query().Get("redirect_uri")
+
+	if redirectUri == "" {
+		return "", errors.New("redirect_uri not found")
+	}
+
+	return redirectUri, nil
 }
 
 type Sessions []Session

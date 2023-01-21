@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/spf13/viper"
+	"time"
 )
 
 const (
@@ -39,4 +40,16 @@ func GetSelectedClientForServer(serverSlug string) string {
 
 func SetDefaults() {
 	SetDefaultSessionDuration()
+}
+
+const sessionDuration = "session_duration"
+
+const defaultSessionDuration = time.Minute * 10
+
+func GetSessionDuration() time.Duration {
+	return viper.GetDuration(sessionDuration)
+}
+
+func SetDefaultSessionDuration() {
+	viper.SetDefault(sessionDuration, defaultSessionDuration)
 }

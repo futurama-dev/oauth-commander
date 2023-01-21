@@ -31,6 +31,14 @@ func (s Server) GetAuthorizationEndpoint() string {
 	}
 }
 
+func (s Server) GetTokenEndpoint() string {
+	if endpoint := s.Metadata["token_endpoint"]; endpoint == nil {
+		return ""
+	} else {
+		return endpoint.(string)
+	}
+}
+
 func (s Server) GetSupportedScopes() []string {
 	scopesSupported, err := extractStringSlice(s.Metadata["scopes_supported"])
 	if err != nil {

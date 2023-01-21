@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/futurama-dev/oauth-commander/client"
-	"github.com/futurama-dev/oauth-commander/config"
 	"github.com/futurama-dev/oauth-commander/server"
+	"github.com/futurama-dev/oauth-commander/session"
 	"github.com/google/uuid"
 	"net/url"
 	"strings"
@@ -164,5 +164,5 @@ func getRedirectUri(c client.Client, redirectUri string) (string, error) {
 }
 
 func saveSession(s server.Server, c client.Client, authReqUrl url.URL, state string, codeVerifier string) error {
-	return config.NewSession(state, authReqUrl, s.Slug, c.Slug, codeVerifier).Save()
+	return session.NewSession(state, authReqUrl, s.Slug, c.Slug, codeVerifier).Save()
 }
