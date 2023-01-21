@@ -117,6 +117,32 @@ func (s Server) GenerateCodeVerifier() (string, string, string, error) {
 	return codeChallengeMethod, codeVerifier, codeChallenge, nil
 }
 
+func (s Server) GetSupportedTokenEndpointAuthMethods() []string {
+	methodsSupported, err := extractStringSlice(s.Metadata["token_endpoint_auth_methods_supported"])
+	if err != nil {
+		// TODO log or maybe error
+		return []string{}
+	}
+
+	return methodsSupported
+}
+
+func (s Server) GetTokenEndpointAuthMethod() string {
+	supportedMethods := s.GetSupportedTokenEndpointAuthMethods()
+
+	if len(supportedMethods) == 0 {
+		return "client_secret_basic"
+	}
+
+	for _, supportedMethod := range supportedMethods {
+		if supportedMethod == "client_secret_basic" {
+			return supportedMethod
+		}
+	}
+
+	return supportedMethods[0]
+}
+
 func extractStringSlice(data interface{}) ([]string, error) {
 	if data == nil {
 		return []string{}, nil

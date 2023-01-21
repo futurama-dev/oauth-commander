@@ -69,7 +69,34 @@ func (c Client) ExchangeCode(code, redirectUri, codeVerifier string) (oauth2.Acc
 		data["code_verifier"] = []string{codeVerifier}
 	}
 
-	resp, err := http.PostForm(svr.GetTokenEndpoint(), data)
+	clientSecret, err := c.GetSecret()
+	if err != nil {
+		return oauth2.AccessTokenResponse{}, err
+	}
+
+	authMethod := svr.GetTokenEndpointAuthMethod()
+	useBasicAuth := false
+	switch authMethod {
+	case "client_secret_basic":
+		useBasicAuth = true
+	case "client_secret_post":
+		data["client_secret"] = []string{clientSecret}
+	default:
+		return oauth2.AccessTokenResponse{}, errors.New("unsupported token endpoint auth method: " + authMethod)
+	}
+
+	req, err := http.NewRequest("POST", svr.GetTokenEndpoint(), strings.NewReader(data.Encode()))
+	if err != nil {
+		return oauth2.AccessTokenResponse{}, err
+	}
+
+	if useBasicAuth {
+		req.SetBasicAuth(c.GetClientId(), clientSecret)
+	}
+
+	httpClient := http.Client{}
+
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return oauth2.AccessTokenResponse{}, err
 	}
