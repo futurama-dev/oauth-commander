@@ -94,6 +94,8 @@ func (c Client) ExchangeCode(code, redirectUri, codeVerifier string) (oauth2.Acc
 		req.SetBasicAuth(c.GetClientId(), clientSecret)
 	}
 
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
 	httpClient := http.Client{}
 
 	resp, err := httpClient.Do(req)
