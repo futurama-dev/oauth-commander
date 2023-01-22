@@ -1,0 +1,33 @@
+type: oauth2
+metadata:
+  issuer: https://twitter.com/
+  authorization_endpoint: https://twitter.com/i/oauth2/authorize
+  token_endpoint: https://api.twitter.com/2/oauth2/token
+  scopes_supported:
+    - tweet.read
+    - tweet.write
+    - tweet.moderate.write
+    - users.read
+    - follows.read
+    - follows.write
+    - offline.access
+    - space.read
+    - mute.read
+    - mute.write
+    - like.read
+    - like.write
+    - list.read
+    - list.write
+    - block.read
+    - block.write
+    - bookmark.read
+    - bookmark.write
+  response_types_supported:
+    - code
+  grant_types_supported:
+    - authorization_code
+  token_endpoint_auth_methods_supported:
+    - client_secret_basic
+  service_documentation: https://developer.twitter.com/en/docs
+  code_challenge_methods_supported:
+    - S256
